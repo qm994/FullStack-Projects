@@ -13,7 +13,9 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
-from models import db
+from models import db, Artist, Venue, Shows
+
+from modelData import artistData
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -25,14 +27,22 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 #----------------------------------------------------------------------------#
-# Models.
+# Backfill the data to the models;
 #----------------------------------------------------------------------------#
 
+with app.app_context():
+  if Artist.query.count() == 0:
+    print("Adding the data")
+    for data in artistData:
+      db.session.add(Artist(**data))
+    db.session.commit()
+    db.session.close()
+  print("Data All Set!")
 
-# TODO: implement any missing fields, as a database migration using Flask-Migrate
+    
 
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
-
+  
+  
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
