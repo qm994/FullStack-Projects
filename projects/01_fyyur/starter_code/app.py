@@ -15,7 +15,7 @@ from forms import *
 from flask_migrate import Migrate
 from models import db, Artist, Venue, Shows
 
-from modelData import artistData, venueData
+from modelData import artistData, venueData, showData
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -30,6 +30,7 @@ migrate = Migrate(app, db)
 # Backfill the data to the models;
 #----------------------------------------------------------------------------#
 with app.app_context():
+
   if Venue.query.count() == 0:
     print("Adding venue data!")
     newEntries = []
@@ -39,10 +40,18 @@ with app.app_context():
     db.session.add_all(newEntries)
     db.session.commit()
     db.session.close()
+
   if Artist.query.count() == 0:
     print("Adding the data")
     for data in artistData:
       db.session.add(Artist(**data))
+    db.session.commit()
+    db.session.close()
+
+  if Shows.query.count() == 0:
+    print("Adding show data!")
+    for data in showData:
+      db.session.add(Shows(**data))
     db.session.commit()
     db.session.close()
   print("Data All Set!")
