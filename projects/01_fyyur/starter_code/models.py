@@ -17,7 +17,7 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String(500))
 
     def __repr__(self):
-        return f'<Venue {self.id} {self.name} {self.artist_id}>'
+        return f'<Venue {self.id} {self.name}>'
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -37,7 +37,7 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(500))
 
     def __repr__(self):
-        return f'<Artist {self.id} {self.name} {self.venues}>'
+        return f'<Artist {self.id} {self.name} >'
 
 class Shows(db.Model):
     __tablename__ = 'Show'
