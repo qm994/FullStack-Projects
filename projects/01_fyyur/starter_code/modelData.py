@@ -106,3 +106,10 @@ showData = [
         "start_time": "2035-04-15T20:00:00.000Z"
     }
 ]
+
+def row2dict(row):
+    d = {}
+    for column in row.__table__.columns:
+        d[column.name] = str(getattr(row, column.name))
+
+    return d
