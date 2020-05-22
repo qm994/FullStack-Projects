@@ -110,7 +110,7 @@ def venues():
     # venueNY = db.session.query(Venue).filter(Venue.state == 'NY').all()
     venueSF = newData.filter(Venue.state == 'CA').all()
     venueNY = newData.filter(Venue.state == 'NY').all()
-    
+
     sfvenues = {}
     for venue in venueSF:
         showDate = datetime.strftime(venue.start_time, '%Y-%m-%d %H:%M:%S')
@@ -142,8 +142,9 @@ def venues():
 
     nyvenues = {}
     for venue in venueNY:
-        showDate = datetime.strftime(venue.start_time, '%Y-%m-%d %H:%M:%S') if venue.show_id is not None else 0
-        if  venue.show_id == None:
+        showDate = datetime.strftime(
+            venue.start_time, '%Y-%m-%d %H:%M:%S') if venue.show_id is not None else 0
+        if venue.show_id == None:
             nyvenues[venue.id] = {
                 "id": venue.id,
                 "name": venue.name,
@@ -188,15 +189,44 @@ def search_venues():
     # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
     # seach for Hop should return "The Musical Hop".
     # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-    response = {
-        "count": 1,
-        "data": [{
-            "id": 2,
-            "name": "The Dueling Pianos Bar",
-            "num_upcoming_shows": 0,
-        }]
+    search_term = "%{}%".format(request.form.get('search_term'))
+    matchVenues = db.session.query(
+        Venue.id,
+        Venue.name,
+        Venue.state).filter(Venue.name.ilike(search_term)).all()
+
+    newresponse = {
+        "count": len(matchVenues),
+        "data": []
     }
-    return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+
+    if matchVenues: 
+        for venue in matchVenues:
+            name = db.session.query(Venue.name).filter(Venue.id == venue.id).all()
+            upcoming_shows = db.session.query(
+                Shows.venue_id,
+                Shows.start_time).filter(
+                    Shows.venue_id == venue.id, 
+                    Shows.start_time > datetime.now()
+                ).all()
+            num_upcoming_shows = len(upcoming_shows)
+            newresponse['data'].append({
+                "id": venue.id,
+                "name": name,
+                "num_upcoming_shows": num_upcoming_shows
+            })
+    print(newresponse)
+    
+    
+    # response = {
+    #     "count": 1,
+    #     "data": [{
+    #         "id": 2,
+    #         "name": "The Dueling Pianos Bar",
+    #         "num_upcoming_shows": 0,
+    #     }]
+    # }
+    return render_template('pages/search_venues.html', results=newresponse, search_term=request.form.get('search_term', ''))
 
 
 @app.route('/venues/<int:venue_id>')
