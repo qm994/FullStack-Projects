@@ -10,13 +10,13 @@ def getStructureVenue(venue):
         "past_shows_count": 0,
         "upcoming_shows_count": 0,
     }
+    
     pastShows = db.session.query(
         Shows.artist_id,
         Shows.start_time).filter(
         Shows.venue_id == venue.id,
         Shows.start_time < datetime.now()
     ).all()
-
     upcoming_shows = db.session.query(
         Shows.artist_id,
         Shows.start_time).filter(
@@ -27,8 +27,7 @@ def getStructureVenue(venue):
     # add new keys
     venue = venue.__dict__
     venue.update(d)
-    #venue["genres"] = list(venue["genres"])
-    # add values if there are past/coming shows
+    
     if len(pastShows) != 0:
         for show in pastShows:
 
@@ -49,7 +48,7 @@ def getStructureVenue(venue):
                     "start_time": start_time
                 })
 
-        venue["past_shows_count"] = len(pastShows)
+    venue["past_shows_count"] = len(pastShows)
 
     if len(upcoming_shows) != 0:
         for show in upcoming_shows:
@@ -71,6 +70,6 @@ def getStructureVenue(venue):
                     "start_time": start_time
                 })
 
-        venue["upcoming_shows_count"] = len(upcoming_shows)
-    
+    venue["upcoming_shows_count"] = len(upcoming_shows)
+    pprint.pprint(venue)
     return venue
