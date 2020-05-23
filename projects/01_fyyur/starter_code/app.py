@@ -14,7 +14,6 @@ from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
 from models import db, Artist, Venue, Shows
-from sqlalchemy import inspect
 from modelData import artistData, venueData, showData
 from datetime import datetime
 
@@ -237,7 +236,7 @@ def show_venue(venue_id):
     for venue in allVenues:
         # finally append the venue to a list
         transVenuesData.append(getStructureVenue(venue))
-        
+
     pprint.pprint(transVenuesData[0])
     data = list(filter(lambda d: d['id'] ==
                        venue_id, transVenuesData))[0]

@@ -27,7 +27,7 @@ def getStructureVenue(venue):
     # add new keys
     venue = venue.__dict__
     venue.update(d)
-
+    #venue["genres"] = list(venue["genres"])
     # add values if there are past/coming shows
     if len(pastShows) != 0:
         for show in pastShows:
@@ -72,4 +72,5 @@ def getStructureVenue(venue):
                 })
 
         venue["upcoming_shows_count"] = len(upcoming_shows)
+    
     return venue
