@@ -217,14 +217,6 @@ def search_venues():
                 "name": name,
                 "num_upcoming_shows": num_upcoming_shows
             })
-    # response = {
-    #     "count": 1,
-    #     "data": [{
-    #         "id": 2,
-    #         "name": "The Dueling Pianos Bar",
-    #         "num_upcoming_shows": 0,
-    #     }]
-    # }
     return render_template('pages/search_venues.html', results=newresponse, search_term=request.form.get('search_term', ''))
 
 
@@ -258,12 +250,26 @@ def create_venue_form():
 def create_venue_submission():
     # TODO: insert form data as a new Venue record in the db, instead
     # TODO: modify data to be the data object returned from db insertion
-    
-    # on successful db insert, flash success
-    flash('Venue ' + request.form['name'] + ' was successfully listed!')
-    # TODO: on unsuccessful db insert, flash an error instead.
-    # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    error = False
+    try:
+        formdata = request.form.to_dict()
+        formdata['genres'] = request.form.getlist('genres')
+        print(formdata)
+        db.session.add(Venue(**formdata))
+        db.session.commit()
+
+    except Exception as e:
+        db.session.rollback()
+        error = True
+        print(e)
+    finally:
+        db.session.close()
+        if error:
+            flash('An error occured. Venue ' +
+                  request.form['name'] + ' Could not be listed!')
+        else:
+            flash('Venue ' + request.form['name'] +
+                  ' was successfully listed!')
     return render_template('pages/home.html')
 
 
