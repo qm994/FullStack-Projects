@@ -230,7 +230,9 @@ def search_venues():
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
-
+    # test = db.session.query(Venue).filter(Venue.id == venue_id).all()
+    # for k in test:
+    #     pprint.pprint(k.genres[0])
     allVenues = db.session.query(Venue).all()
     transVenuesData = []
     for venue in allVenues:
@@ -256,7 +258,7 @@ def create_venue_form():
 def create_venue_submission():
     # TODO: insert form data as a new Venue record in the db, instead
     # TODO: modify data to be the data object returned from db insertion
-
+    
     # on successful db insert, flash success
     flash('Venue ' + request.form['name'] + ' was successfully listed!')
     # TODO: on unsuccessful db insert, flash an error instead.
