@@ -279,7 +279,7 @@ def delete_venue(venue_id):
 
     try:
         venue = Venue.query.get(venue_id)
-        name= venue.name
+        name = venue.name
         db.session.delete(venue)
         db.session.commit()
     except Exception as e:
@@ -289,7 +289,8 @@ def delete_venue(venue_id):
     finally:
         db.session.close()
         if error:
-            flash(f"An error has occured. Venue {venue_id} could not be deleted!")
+            flash(
+                f"An error has occured. Venue {venue_id} could not be deleted!")
             abort(400)
         else:
             flash(f"The venue {venue_id}: {name} has deleted!")
@@ -298,17 +299,14 @@ def delete_venue(venue_id):
 @app.route('/artists')
 def artists():
     # TODO: replace with real data returned from querying the database
-    data = [{
-        "id": 4,
-        "name": "Guns N Petals",
-    }, {
-        "id": 5,
-        "name": "Matt Quevedo",
-    }, {
-        "id": 6,
-        "name": "The Wild Sax Band",
-    }]
-    return render_template('pages/artists.html', artists=data)
+    artists = db.session.query(Artist).all()
+    newData = []
+    for artist in artists:
+        newData.append({
+            "id": artist.id,
+            "name": artist.name
+        })
+    return render_template('pages/artists.html', artists=newData)
 
 
 @app.route('/artists/search', methods=['POST'])
@@ -316,15 +314,34 @@ def search_artists():
     # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
     # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
     # search for "band" should return "The Wild Sax Band".
-    response = {
-        "count": 1,
-        "data": [{
-            "id": 4,
-            "name": "Guns N Petals",
-            "num_upcoming_shows": 0,
-        }]
+    # "%{}%".format(request.form.get('search_term'))
+    search_term = "%{}%".format(request.form.get('search_term'))
+
+    searched_artist = db.session.query(Artist).filter(
+        Artist.name.ilike(search_term)).all()
+    num_searched_artist = len(searched_artist)
+    newData = {
+        "count": num_searched_artist,
+        "data": []
     }
-    return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
+    for artist in searched_artist:
+        upcoming_ones = Shows.query.filter(
+            artist.id == Shows.artist_id, Shows.start_time > datetime.now()).all()
+        num_coming = len(upcoming_ones)
+        if(num_coming > 0):
+            newData["data"].append({
+                "id": artist.id,
+                "name": artist.name,
+                "num_upcoming_shows": num_coming
+            })
+        else:
+            newData["data"].append({
+                "id": artist.id,
+                "name": artist.name,
+                "num_upcoming_shows": 0
+            })
+    #pprint.pprint(newData)
+    return render_template('pages/search_artists.html', results=newData, search_term=request.form.get('search_term', ''))
 
 
 @app.route('/artists/<int:artist_id>')
