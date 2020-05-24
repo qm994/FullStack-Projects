@@ -5,7 +5,7 @@ import pprint
 import json
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for, jsonify
+from flask import Flask, render_template, request, Response, flash, redirect, url_for, jsonify, abort
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
@@ -277,10 +277,22 @@ def delete_venue(venue_id):
     # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
     error = False
 
-    # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
-    # clicking that button delete it from the db then redirect the user to the homepage
-    return None
-
+    try:
+        venue = Venue.query.get(venue_id)
+        name= venue.name
+        db.session.delete(venue)
+        db.session.commit()
+    except Exception as e:
+        error = True
+        print(f"The error is {e}")
+        db.session.rollback()
+    finally:
+        db.session.close()
+        if error:
+            flash(f"An error has occured. Venue {venue_id} could not be deleted!")
+            abort(400)
+        else:
+            flash(f"The venue {venue_id}: {name} has deleted!")
 #  Artists
 #  ----------------------------------------------------------------
 @app.route('/artists')

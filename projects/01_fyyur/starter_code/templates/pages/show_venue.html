@@ -10,21 +10,26 @@
 		<button class="delete-button" data-id="{{ venue.id }}">
 			&cross;
 		</button>
-		<!-- <script>
+		<script>
 			const deleteBtn = document.querySelector('.delete-button');
 			deleteBtn.onclick = function (e) {
 				console.log("the data is:")
 				console.log(deleteBtn.dataset.id)
-				// fetch('/venues/' + deleteBtn.dataset.id, {
-				// 	method: 'DELETE',
-				// })
-				// 	.then(
-				// 		response => {
-				// 			window.location = "/venues/" + deleteBtn.dataset.id;
-				// 		}
-				// 	)
+				fetch('/venues/' + deleteBtn.dataset.id, {
+					method: 'DELETE',
+				})
+				.then(
+					() => {
+						
+						window.location = "/"
+					}
+						// response => {
+						// 	window.location = "/venues/" + deleteBtn.dataset.id;
+						// }
+						
+					)
 			}
-		</script> -->
+		</script>
 
 
 		<p class="subtitle">
