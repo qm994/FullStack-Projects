@@ -23,7 +23,7 @@ def getStructureVenue(venue):
         Shows.venue_id == venue.id,
         Shows.start_time > datetime.now()
     ).all()
-
+    genres = venue.genres
     # add new keys
     venue = venue.__dict__
     venue.update(d)
@@ -69,7 +69,9 @@ def getStructureVenue(venue):
                     "artist_image_link": ele[2],
                     "start_time": start_time
                 })
-
+    venue["genres"] = genres
+    print()
     venue["upcoming_shows_count"] = len(upcoming_shows)
+
     pprint.pprint(venue)
     return venue
