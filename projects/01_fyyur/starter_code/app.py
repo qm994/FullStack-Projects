@@ -434,7 +434,7 @@ def edit_venue_submission(venue_id):
 
 @app.route('/artists/create', methods=['GET'])
 def create_artist_form():
-    form = ArtistForm()
+    form = NewArtistForm()
     return render_template('forms/new_artist.html', form=form)
 
 
