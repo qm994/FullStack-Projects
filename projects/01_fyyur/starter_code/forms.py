@@ -323,6 +323,10 @@ class NewArtistForm(Form):
     seeking_description = TextAreaField(
         "seeking_description"
     )
-    seeking_venue = BooleanField(
-        "seeking_venue"
+    seeking_venue = SelectField(
+        "seeking_venue", validators = [DataRequired()],
+        choices = [
+            ("True", "True"),
+            ("False", "False")
+        ]
     )
