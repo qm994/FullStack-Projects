@@ -10,6 +10,8 @@ Your job is to build out the data models to power the API endpoints for the Fyyu
 ### How to test it in your local?
 After you clone/fork the repository, you need to go to the projetc root directory. For example: the `fyyur` project you need to go to the `starter code` directory. Then, you need to `export FLASK_ENV=development` `export FLASK_APP=app.py` `flask run` finally to run the app. 
 
+Secondly, run `flask db init` and `flask db migrate` `flask db upgrade` to backfill the data to your local database.
+
 ### Overview
 
 This app is nearly complete. It is only missing one thing… real data! While the views and controllers are defined in this application, it is missing models and model interactions to be able to store retrieve, and update data from a database. By the end of this project, you should have a fully functioning site that is at least capable of doing the following, if not more, using a PostgreSQL database:
