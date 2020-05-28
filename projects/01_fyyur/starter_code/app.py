@@ -33,7 +33,8 @@ migrate = Migrate(app, db)
 # Backfill the data to the models;
 #----------------------------------------------------------------------------#
 with app.app_context():
-
+    db.create_all()
+    db.session.commit()
     if Venue.query.count() == 0:
         print("Adding venue data!")
         newEntries = []
