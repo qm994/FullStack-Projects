@@ -3,16 +3,21 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
-
-from models import setup_db, Question, Category
+from flask_migrate import Migrate
+from models import setup_db, Question, Category, db
 
 QUESTIONS_PER_PAGE = 10
 
 def create_app(test_config=None):
   # create and configure the app
-  app = Flask(__name__)
-  setup_db(app)
-  
+  try:
+    app = Flask(__name__)
+    setup_db(app)
+  except Exception as e:
+    print("Error when binding the flask application with sqlAlchemy")
+    print(e)
+  migrate = Migrate(app, db)
+  CORS(app=app, resources={r"*/api/*": {"origins": "*"}})
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
