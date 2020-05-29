@@ -55,7 +55,7 @@ def create_app(test_config=None):
     })
 
   '''
-  @TODO: 
+  @DONE: 
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
   This endpoint should return a list of questions, 
@@ -68,12 +68,25 @@ def create_app(test_config=None):
   '''
   @app.route("/questions", methods = ["GET"])
   @cross_origin()
-
   def get_questions():
-    searchPage = request.args.get("page", '')
+    searchPage = int(request.args.get("page", ''))
+    questions = [question.format() for question in Question.query.all()]
+    if searchPage == 1:
+      pageQuestions = questions[0:10]
+    else:
+      index = (searchPage - 1) * 10
+      pageQuestions = questions[index:searchPage * 10]
     print(searchPage)
-
-    return "Hello World!"
+    pprint.pprint(pageQuestions)
+    total_questions = len(pageQuestions)
+    categories = list(set([question["category"] for question in pageQuestions]))
+    pprint.pprint(categories)
+    return jsonify({
+      "questions": pageQuestions,
+      "total_questions": total_questions,
+      "categories": categories,
+      "current_category": None
+    })
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
