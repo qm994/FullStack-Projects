@@ -6,8 +6,11 @@ import random
 import pprint
 
 from models import setup_db, Question, Category
+from flask_migrate import Migrate
+from models import setup_db, Question, Category, db
 
 QUESTIONS_PER_PAGE = 10
+
 
 def create_app(test_config=None):
   # create and configure the app
@@ -54,7 +57,8 @@ def create_app(test_config=None):
       "questions": questions
     })
 
-  '''
+ 
+    '''
   @DONE: 
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
@@ -66,6 +70,7 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
+
   @app.route("/questions", methods = ["GET"])
   @cross_origin()
   def get_questions():
@@ -87,6 +92,7 @@ def create_app(test_config=None):
       "categories": categories,
       "current_category": None
     })
+
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
@@ -95,7 +101,7 @@ def create_app(test_config=None):
   This removal will persist in the database and when you refresh the page. 
   '''
 
-  '''
+    '''
   @TODO: 
   Create an endpoint to POST a new question, 
   which will require the question and answer text, 
@@ -106,7 +112,7 @@ def create_app(test_config=None):
   of the questions list in the "List" tab.  
   '''
 
-  '''
+    '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
@@ -117,7 +123,7 @@ def create_app(test_config=None):
   Try using the word "title" to start. 
   '''
 
-  '''
+    '''
   @TODO: 
   Create a GET endpoint to get questions based on category. 
 
@@ -125,9 +131,7 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
-
-
-  '''
+    '''
   @TODO: 
   Create a POST endpoint to get questions to play the quiz. 
   This endpoint should take category and previous question parameters 
@@ -139,12 +143,10 @@ def create_app(test_config=None):
   and shown whether they were correct or not. 
   '''
 
-  '''
+    '''
   @TODO: 
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
-  
-  return app
 
-    
+    return app
