@@ -1,8 +1,9 @@
 import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import random
+import pprint
 
 from models import setup_db, Question, Category
 
@@ -12,21 +13,46 @@ def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
   setup_db(app)
+  CORS(app)
+  '''
+  @DONE: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+  '''
   
   '''
-  @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+  @DONE: Use the after_request decorator to set Access-Control-Allow
   '''
+  # register a function to run after each request, 
+  # and function must take one parameter.
+  # and return a new response object
+  @app.after_request
+  def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers',
+    'Content-Type,Authorization,true')
+
+    response.headers.add('Access-Control-Allow-Methods',
+    'GET,POST,PATCH,PUT,DELETE')
+
+    return response
 
   '''
-  @TODO: Use the after_request decorator to set Access-Control-Allow
-  '''
-
-  '''
-  @TODO: 
+  @DONE: 
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-
+  @app.route("/categories_questions", methods=['GET'])
+  @cross_origin()
+  def get_categories():
+    try:
+      categories = [cat.format() for cat in Category.query.all()]
+      questions = [question.format() for question in Question.query.all()]
+      print(categories, questions)
+    except Exception as e:
+      flash(f"Error... when getting categories.questions data")
+      print(e)
+    return jsonify({  
+      "categories": categories,
+      "questions": questions
+    })
 
   '''
   @TODO: 
