@@ -1,8 +1,11 @@
 import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import random
+import pprint
+
+from models import setup_db, Question, Category
 from flask_migrate import Migrate
 from models import setup_db, Question, Category, db
 
@@ -10,37 +13,53 @@ QUESTIONS_PER_PAGE = 10
 
 
 def create_app(test_config=None):
-    # create and configure the app
-    try:
-        app = Flask(__name__)
-        setup_db(app)
-    except Exception as e:
-        print("Error when binding the flask application with sqlAlchemy")
-        print(e)
-    migrate = Migrate(app, db)
-    CORS(app=app, resources={r"*/api/*": {"origins": "*"}})
-    '''
-  @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+  # create and configure the app
+  app = Flask(__name__)
+  setup_db(app)
+  CORS(app)
   '''
-
-    '''
+  @DONE: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+  '''
+  
+  '''
   @DONE: Use the after_request decorator to set Access-Control-Allow
   '''
-    @app.after_request
-    def after_request(response):
-        response.headers.add('Access-Control-Allow-Headers',
-                             'Content-Type,Authorization,true')
-        response.headers.add('Access-Control-Allow-Methods',
-                             'GET,PATCH,POST,DELETE,OPTIONS,POST')
-        # must return the resposne to the client
-        return response
-    '''
-  @TODO: 
+  # register a function to run after each request, 
+  # and function must take one parameter.
+  # and return a new response object
+  @app.after_request
+  def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers',
+    'Content-Type,Authorization,true')
+
+    response.headers.add('Access-Control-Allow-Methods',
+    'GET,POST,PATCH,PUT,DELETE')
+
+    return response
+
+  '''
+  @DONE: 
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
+  @app.route("/categories_questions", methods=['GET'])
+  @cross_origin()
+  def get_categories():
+    try:
+      categories = [cat.format() for cat in Category.query.all()]
+      questions = [question.format() for question in Question.query.all()]
+      print(categories, questions)
+    except Exception as e:
+      flash(f"Error... when getting categories.questions data")
+      print(e)
+    return jsonify({  
+      "categories": categories,
+      "questions": questions
+    })
+
+ 
     '''
-  @TODO: 
+  @DONE: 
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
   This endpoint should return a list of questions, 
@@ -52,7 +71,29 @@ def create_app(test_config=None):
   Clicking on the page numbers should update the questions. 
   '''
 
-    '''
+  @app.route("/questions", methods = ["GET"])
+  @cross_origin()
+  def get_questions():
+    searchPage = int(request.args.get("page", ''))
+    questions = [question.format() for question in Question.query.all()]
+    if searchPage == 1:
+      pageQuestions = questions[0:10]
+    else:
+      index = (searchPage - 1) * 10
+      pageQuestions = questions[index:searchPage * 10]
+    print(searchPage)
+    pprint.pprint(pageQuestions)
+    total_questions = len(pageQuestions)
+    categories = list(set([question["category"] for question in pageQuestions]))
+    pprint.pprint(categories)
+    return jsonify({
+      "questions": pageQuestions,
+      "total_questions": total_questions,
+      "categories": categories,
+      "current_category": None
+    })
+
+  '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
 
