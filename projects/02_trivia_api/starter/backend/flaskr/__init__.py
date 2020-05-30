@@ -6,7 +6,7 @@ import random
 import pprint
 
 from models import setup_db, Question, Category
-from flask_migrate import Migrate
+
 from models import setup_db, Question, Category, db
 
 QUESTIONS_PER_PAGE = 10
@@ -74,25 +74,34 @@ def create_app(test_config=None):
   @app.route("/questions", methods = ["GET"])
   @cross_origin()
   def get_questions():
-    searchPage = int(request.args.get("page", ''))
-    questions = [question.format() for question in Question.query.all()]
-    if searchPage == 1:
-      pageQuestions = questions[0:10]
+    search = request.args.get("page", None)
+    # print(search)
+    # print("success" if search else "fail")
+    if search:
+      searchPage = int(search)
+      questions = [question.format() for question in Question.query.all()]
+      if searchPage == 1:
+        pageQuestions = questions[0:10]
+      else:
+        index = (searchPage - 1) * 10
+        pageQuestions = questions[index:searchPage * 10]
+      total_questions = len(pageQuestions)
+      categoriesIDs = list(set([question["category"] for question in pageQuestions]))
+      print(categoriesIDs)
+      typesNames = []
+      for id in categoriesIDs:
+        typeName = Category.query.get(id)
+        typesNames.append({id: typeName.type})
+      
+      print(typesNames)
+      return jsonify({
+        "questions": pageQuestions,
+        "total_questions": total_questions,
+        "categories": typesNames,
+        "current_category": None
+      })
     else:
-      index = (searchPage - 1) * 10
-      pageQuestions = questions[index:searchPage * 10]
-    print(searchPage)
-    pprint.pprint(pageQuestions)
-    total_questions = len(pageQuestions)
-    categories = list(set([question["category"] for question in pageQuestions]))
-    pprint.pprint(categories)
-    return jsonify({
-      "questions": pageQuestions,
-      "total_questions": total_questions,
-      "categories": categories,
-      "current_category": None
-    })
-
+      return 'Hello'
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
@@ -101,7 +110,7 @@ def create_app(test_config=None):
   This removal will persist in the database and when you refresh the page. 
   '''
 
-    '''
+  '''
   @TODO: 
   Create an endpoint to POST a new question, 
   which will require the question and answer text, 
@@ -112,7 +121,7 @@ def create_app(test_config=None):
   of the questions list in the "List" tab.  
   '''
 
-    '''
+  '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
@@ -123,7 +132,7 @@ def create_app(test_config=None):
   Try using the word "title" to start. 
   '''
 
-    '''
+  '''
   @TODO: 
   Create a GET endpoint to get questions based on category. 
 
@@ -131,7 +140,18 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
-    '''
+
+  @app.route("/categories/<int:id>/questions")
+  @cross_origin()
+  def get_questions_by_category(id):
+    questions = [question.format() for question in Question.query.filter_by(category = id).all()]
+    current_category = list(set([question["category"] for question in questions]))
+    return jsonify({
+      "questions": questions,
+      "total_questions": len(questions),
+      "current_category": current_category
+    })
+  '''
   @TODO: 
   Create a POST endpoint to get questions to play the quiz. 
   This endpoint should take category and previous question parameters 
@@ -143,10 +163,10 @@ def create_app(test_config=None):
   and shown whether they were correct or not. 
   '''
 
-    '''
+  '''
   @TODO: 
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
 
-    return app
+  return app
