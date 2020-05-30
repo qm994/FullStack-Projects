@@ -4,7 +4,7 @@ import $ from 'jquery';
 import '../stylesheets/FormView.css';
 
 class FormView extends Component {
-  constructor(props){
+  constructor(props) {
     super();
     this.state = {
       question: "",
@@ -15,9 +15,9 @@ class FormView extends Component {
     }
   }
 
-  componentDidMount(){
+  componentDidMount() {
     $.ajax({
-      url: "http://127.0.0.1:5000/categories_questions", //TODO: update request URL
+      url: "http://127.0.0.1:5000/categories_questions", //DONE: update request URL
       type: "GET",
       success: (result) => {
         this.setState({ categories: result.categories })
@@ -33,34 +33,40 @@ class FormView extends Component {
 
   submitQuestion = (event) => {
     event.preventDefault();
-    $.ajax({
-      url: '/questions', //TODO: update request URL
-      type: "POST",
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        question: this.state.question,
-        answer: this.state.answer,
-        difficulty: this.state.difficulty,
-        category: this.state.category
-      }),
-      xhrFields: {
-        withCredentials: true
-      },
-      crossDomain: true,
-      success: (result) => {
-        document.getElementById("add-question-form").reset();
-        return;
-      },
-      error: (error) => {
-        alert('Unable to add question. Please try your request again')
-        return;
-      }
-    })
+    if (this.state.question == '' || this.state.answer == '') {
+      alert("Please fullfill the blanks firstly!")
+    }
+    else {
+      $.ajax({
+        url: 'http://127.0.0.1:5000/questions/add', //TODO: update request URL
+        type: "POST",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          question: this.state.question,
+          answer: this.state.answer,
+          difficulty: this.state.difficulty,
+          category: this.state.category
+        }),
+        xhrFields: {
+          withCredentials: true
+        },
+        crossDomain: true,
+        success: (result) => {
+          document.getElementById("add-question-form").reset();
+          return;
+        },
+        error: (error) => {
+          alert('Unable to add question. Please try your request again')
+          return;
+        }
+      })
+    }
+
   }
 
   handleChange = (event) => {
-    this.setState({[event.target.name]: event.target.value})
+    this.setState({ [event.target.name]: event.target.value })
   }
 
   render() {
@@ -71,11 +77,11 @@ class FormView extends Component {
         <form className="form-view" id="add-question-form" onSubmit={this.submitQuestion}>
           <label>
             Question
-            <input type="text" name="question" onChange={this.handleChange}/>
+            <input type="text" name="question" onChange={this.handleChange} />
           </label>
           <label>
             Answer
-            <input type="text" name="answer" onChange={this.handleChange}/>
+            <input type="text" name="answer" onChange={this.handleChange} />
           </label>
           <label>
             Difficulty
@@ -91,10 +97,10 @@ class FormView extends Component {
             Category
             <select name="category" onChange={this.handleChange}>
               {(this.state.categories).map(category => {
-                  return (
-                    <option key={category["id"]} value={category["type"]}>{category["type"]}</option>
-                  )
-                })}
+                return (
+                  <option key={category["id"]} value={category["type"]}>{category["type"]}</option>
+                )
+              })}
             </select>
           </label>
           <input type="submit" className="button" value="Submit" />
