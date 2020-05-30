@@ -4,9 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
 import random
 import pprint
-
-from models import setup_db, Question, Category
-
 from models import setup_db, Question, Category, db
 
 QUESTIONS_PER_PAGE = 10
@@ -34,8 +31,8 @@ def create_app(test_config=None):
 
         response.headers.add('Access-Control-Allow-Methods',
                              'GET,POST,PATCH,PUT,DELETE')
-        #response.headers.add('Access-Control-Allow-Credentials', 'true')
-        #response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+        # response.headers.add('Access-Control-Allow-Credentials', 'true')
+        # response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
         return response
 
     '''
@@ -59,7 +56,7 @@ def create_app(test_config=None):
             "questions": questions
         })
 
-        '''
+    '''
   @DONE: 
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
@@ -124,7 +121,7 @@ def create_app(test_config=None):
   '''
 
     '''
-  @TODO: 
+  @DONE: 
   Create an endpoint to POST a new question, 
   which will require the question and answer text, 
   category, and difficulty score.
@@ -133,9 +130,46 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+    @app.route("/questions/add", methods = ["POST"])
+    @cross_origin(
+      origin='http://localhost:3000', 
+      methods = 'POST', 
+      allow_headers = '*', 
+      supports_credentials = True)
+    
+    def create_new_question():
+      post_data = request.get_json()
+      #pprint.pprint(post_data)
+      categoryId = [data.id for data in Category.query.filter_by(type = post_data["category"]).all()][0]
+      print(categoryId)
+      error = False
+      try:
+        newRow = Question(
+          question = post_data["question"],
+          answer = post_data["answer"],
+          difficulty = post_data["difficulty"],
+          category = categoryId
+        )
+        Question.insert(newRow)
+        # db.session.add(newRow)
+        # db.session.commit()
+      except Exception as e:
+        error = True
+        db.session.rollback()
+        print(e)
+      finally:
+        if error:
+          flash("data failed to insert")
+        
+      return jsonify({
+        "success": error,
+        "data": post_data
+      })
+
+  
 
     '''
-  @TODO: 
+  @DONE: 
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
   is a substring of the question. 
@@ -165,6 +199,7 @@ def create_app(test_config=None):
           "total_questions": len(questions),
           "current_category": list(set(current_category))
         })
+        
     '''
   @DONE: 
   Create a GET endpoint to get questions based on category. 
