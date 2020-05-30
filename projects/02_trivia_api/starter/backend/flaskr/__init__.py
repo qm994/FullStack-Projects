@@ -75,11 +75,10 @@ def create_app(test_config=None):
   @cross_origin()
   def get_questions():
     search = request.args.get("page", None)
-    # print(search)
-    # print("success" if search else "fail")
+    questions = [question.format() for question in Question.query.all()]
+
     if search:
       searchPage = int(search)
-      questions = [question.format() for question in Question.query.all()]
       if searchPage == 1:
         pageQuestions = questions[0:10]
       else:
@@ -101,7 +100,18 @@ def create_app(test_config=None):
         "current_category": None
       })
     else:
-      return 'Hello'
+      categoriesIDs = list(set([question["category"] for question in questions]))
+      typesNames = []
+      for id in categoriesIDs:
+        typeName = Category.query.get(id)
+        typesNames.append({id: typeName.type})
+      
+      return jsonify({
+        "questions": questions,
+        "total_questions": len(questions),
+        "categories": typesNames,
+        "current_category": None 
+      })
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 

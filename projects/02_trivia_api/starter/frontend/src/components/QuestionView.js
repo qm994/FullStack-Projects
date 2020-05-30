@@ -4,13 +4,13 @@ import '../stylesheets/App.css';
 import Question from './Question';
 import Search from './Search';
 import $ from 'jquery';
-
+import getCategoryById from '../helper';
 class QuestionView extends Component {
   constructor() {
     super();
     this.state = {
       questions: [],
-      page: 1,
+      page: '',
       totalQuestions: 0,
       // ex:[{"id", "type"}, ...]
       categories: [],
@@ -53,7 +53,8 @@ class QuestionView extends Component {
       pageNumbers.push(
         <span
           key={i}
-          className={`page-num ${i === this.state.page ? 'active' : ''}`}
+          className={`page-num ${i === this.state.page ? 'active' : ''}`
+          }
           onClick={() => { this.selectPage(i) }}>{i}
         </span>)
     }
@@ -145,12 +146,12 @@ class QuestionView extends Component {
         </div>
         <div className="questions-list">
           <h2>Questions</h2>
-          {this.state.questions.map((q, ind) => (
+          {this.state.questions.map((q) => (
             <Question
               key={q.id}
               question={q.question}
               answer={q.answer}
-              category={this.state.categories[q.category]}
+              category={getCategoryById(q.category, this.state.categories)}
               difficulty={q.difficulty}
               questionAction={this.questionAction(q.id)}
             />
