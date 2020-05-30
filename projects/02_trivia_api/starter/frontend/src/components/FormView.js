@@ -38,7 +38,7 @@ class FormView extends Component {
     }
     else {
       $.ajax({
-        url: 'http://127.0.0.1:5000/questions/add', //TODO: update request URL
+        url: 'http://127.0.0.1:5000/questions/add', //DONE: update request URL
         type: "POST",
         dataType: 'json',
         contentType: 'application/json',
