@@ -2,6 +2,9 @@
 
 ## How tp test in your local?
 
+Setup environment:
+follow link here to set up your virtual environment: https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/
+then pip install all the requirements libraries in `reuqirements.txt`
 1. make sure your postgreSQL server is running;
 2. To start front end: go to the `frontend` directory then `npm install`, `npm start`
 3. To start backend: got to the `backend` directory then `export FLASK_APP=flaskr/__init__.py`, `export FLASK_ENV=DEVELOPMENT`, `flask run`, run these commands one by one;
