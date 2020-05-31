@@ -1,5 +1,11 @@
 # Full Stack API Final Project
 
+## How tp test in your local?
+
+1. make sure your postgreSQL server is running;
+2. To start front end: go to the `frontend` directory then `npm install`, `npm start`
+3. To start backend: got to the `backend` directory then `export FLASK_APP=flaskr/__init__.py`, `export FLASK_ENV=DEVELOPMENT`, `flask run`, run these commands one by one;
+
 ## Full Stack Trivia
 
 Udacity is invested in creating bonding experiences for its employees and students. A bunch of team members got the idea to hold trivia on a regular basis and created a  webpage to manage the trivia app and play the game, but their API experience is limited and still needs to be built out. 
