@@ -5,7 +5,7 @@ from flask_cors import CORS, cross_origin
 import random
 import pprint
 from models import setup_db, Question, Category, db
-
+import random
 QUESTIONS_PER_PAGE = 10
 
 
@@ -47,7 +47,7 @@ def create_app(test_config=None):
             categories = [cat.format() for cat in Category.query.all()]
             questions = [question.format()
                          for question in Question.query.all()]
-            print(categories, questions)
+
         except Exception as e:
             flash(f"Error... when getting categories.questions data")
             print(e)
@@ -85,13 +85,12 @@ def create_app(test_config=None):
             total_questions = len(pageQuestions)
             categoriesIDs = list(set([question["category"]
                                       for question in pageQuestions]))
-            print(categoriesIDs)
+
             typesNames = []
             for id in categoriesIDs:
                 typeName = Category.query.get(id)
                 typesNames.append({id: typeName.type})
 
-            print(typesNames)
             return jsonify({
                 "questions": pageQuestions,
                 "total_questions": total_questions,
@@ -113,13 +112,22 @@ def create_app(test_config=None):
                 "current_category": None
             })
     '''
-  @TODO: 
+  @DONE: 
   Create an endpoint to DELETE question using a question ID. 
 
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
-    
+    @app.route('/questions/<int:question_id>', methods=['DELETE'])
+    def delete_question(question_id):
+        print(question_id)
+        question = Question.query.filter(Question.id == question_id).one_or_none()
+        question.delete()
+
+        return jsonify({
+            "success": False,
+            "delete_question": question_id
+        })
 
     '''
   @DONE: 
@@ -131,43 +139,41 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
-    @app.route("/questions/add", methods = ["POST"])
+    @app.route("/questions/add", methods=["POST"])
     @cross_origin(
-      origin='http://localhost:3000', 
-      methods = 'POST', 
-      allow_headers = '*', 
-      supports_credentials = True)
-    
+        origin='http://localhost:3000',
+        methods='POST',
+        allow_headers='*',
+        supports_credentials=True)
     def create_new_question():
-      post_data = request.get_json()
-      #pprint.pprint(post_data)
-      categoryId = [data.id for data in Category.query.filter_by(type = post_data["category"]).all()][0]
-      print(categoryId)
-      error = False
-      try:
-        newRow = Question(
-          question = post_data["question"],
-          answer = post_data["answer"],
-          difficulty = post_data["difficulty"],
-          category = categoryId
-        )
-        Question.insert(newRow)
-        # db.session.add(newRow)
-        # db.session.commit()
-      except Exception as e:
-        error = True
-        db.session.rollback()
-        print(e)
-      finally:
-        if error:
-          flash("data failed to insert")
-        
-      return jsonify({
-        "success": error,
-        "data": post_data
-      })
+        post_data = request.get_json()
+        # pprint.pprint(post_data)
+        categoryId = [data.id for data in Category.query.filter_by(
+            type=post_data["category"]).all()][0]
 
-  
+        error = False
+        try:
+            newRow = Question(
+                question=post_data["question"],
+                answer=post_data["answer"],
+                difficulty=post_data["difficulty"],
+                category=categoryId
+            )
+            Question.insert(newRow)
+            # db.session.add(newRow)
+            # db.session.commit()
+        except Exception as e:
+            error = True
+            db.session.rollback()
+            print(e)
+        finally:
+            if error:
+                flash("data failed to insert")
+
+        return jsonify({
+            "success": error,
+            "data": post_data
+        })
 
     '''
   @DONE: 
@@ -181,7 +187,7 @@ def create_app(test_config=None):
   '''
 
     @app.route("/questions/search", methods=["POST"])
-    @cross_origin(origin='http://localhost:3000', methods = 'POST', allow_headers = '*', supports_credentials = True)
+    @cross_origin(origin='http://localhost:3000', methods='POST', allow_headers='*', supports_credentials=True)
     def search_questions():
         try:
             searchTerm = "%{}%".format(request.args.get("searchterm"))
@@ -196,11 +202,11 @@ def create_app(test_config=None):
             questions = [question.format() for question in filteredSearch]
             current_category = [question["category"] for question in questions]
         return jsonify({
-          "questions": questions,
-          "total_questions": len(questions),
-          "current_category": list(set(current_category))
+            "questions": questions,
+            "total_questions": len(questions),
+            "current_category": list(set(current_category))
         })
-        
+
     '''
   @DONE: 
   Create a GET endpoint to get questions based on category. 
@@ -223,7 +229,7 @@ def create_app(test_config=None):
             "current_category": current_category
         })
     '''
-  @TODO: 
+  @DONE: 
   Create a POST endpoint to get questions to play the quiz. 
   This endpoint should take category and previous question parameters 
   and return a random questions within the given category, 
@@ -233,11 +239,48 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+    @app.route("/quizzes", methods=['POST'])
+    @cross_origin(origin='http://localhost:3000', methods='POST', allow_headers='*', supports_credentials=True)
+    def play_quiz():
+        post_data = request.get_json()
+        pre_questions = post_data.get("previous_questions", None)
+        quiz_category = post_data.get("quiz_category", None)
+
+        print(pre_questions, quiz_category)
+        if len(pre_questions) == 0:
+            currentQuestions = [question.id for question in Question.query.filter(
+                Question.category == quiz_category["id"]
+            ).all()]
+        else:
+            currentQuestions = [question.id for question in Question.query.filter(
+                Question.category == quiz_category["id"],
+                Question.id.notin_(pre_questions)
+            ).all()]
+        currentQuestion = []
+        if len(currentQuestions) > 0:
+            questionid = random.choice(currentQuestions)
+            choice = Question.query.filter(Question.id == questionid)
+            formatChoice = [question.format() for question in choice]
+            pre_questions.append(choice)
+            currentQuestion.append(formatChoice)
+
+            return jsonify({
+                "question": currentQuestion[0][0]
+            })
 
     '''
-  @TODO: 
-  Create error handlers for all expected errors 
-  including 404 and 422. 
-  '''
+  @DONE: Create error handlers for all expected errors including 404 and 422.'''
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return jsonify({
+            "message": 'This page does not exist',
+            "code": 404
+        }), 404
 
+    @app.errorhandler(422)
+    def entity_error(e):
+        return jsonify({
+            "message": "The request was well-formed but was unable to be followed due to semantic errors",
+            "code": 422
+        }), 422
     return app
